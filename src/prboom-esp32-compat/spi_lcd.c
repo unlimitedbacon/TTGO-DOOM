@@ -19,15 +19,21 @@
 #include "freertos/task.h"
 #include "freertos/semphr.h"
 #include "esp_system.h"
+#include "esp_task_wdt.h"
 #include "driver/spi_master.h"
 #include "soc/gpio_struct.h"
 #include "driver/gpio.h"
+#include "soc/timer_group_struct.h"
+#include "soc/timer_group_reg.h"
 // #include "esp_heap_alloc_caps.h"
+
+#include "prboom/lprintf.h"
 
 #include "sdkconfig.h"
 
 
 #if 1
+#define CONFIG_HW_LCD_TYPE 1 // ST7789V
 #define PIN_NUM_MISO -1
 #define PIN_NUM_MOSI 19
 #define PIN_NUM_CLK  18
@@ -45,7 +51,7 @@
 #endif
 
 //You want this, especially at higher framerates. The 2nd buffer is allocated in iram anyway, so isn't really in the way.
- #define DOUBLE_BUFFER
+#define DOUBLE_BUFFER
 
 
 /*
@@ -398,6 +404,8 @@ void spi_lcd_wait_finish() {
 }
 
 void spi_lcd_send(uint16_t *scr) {
+    //printf("spi_lcd_send()\n");
+    //printf("  %x, %x\n", currFbPtr, scr);
 #ifdef DOUBLE_BUFFER
 	memcpy(currFbPtr, scr, 320*240);
 	//Theoretically, also should double-buffer the lcdpal array... ahwell.
@@ -405,6 +413,11 @@ void spi_lcd_send(uint16_t *scr) {
 	currFbPtr=scr;
 #endif
 	xSemaphoreGive(dispSem);
+    // Reset the watchdog timer on every frame draw
+    //esp_task_wdt_reset();
+    TIMERG0.wdt_wprotect=TIMG_WDT_WKEY_VALUE;
+    TIMERG0.wdt_feed=1;
+    TIMERG0.wdt_wprotect=0;
 }
 
 void spi_lcd_init() {
@@ -413,7 +426,14 @@ void spi_lcd_init() {
     dispDoneSem=xSemaphoreCreateBinary();
 #ifdef DOUBLE_BUFFER
 	//currFbPtr=pvPortMallocCaps(320*240, MALLOC_CAP_32BIT);
-	currFbPtr=malloc(320*240*4);
+	//currFbPtr=malloc(320*240*4);
+    currFbPtr=heap_caps_malloc(320*240*4,MALLOC_CAP_SPIRAM);
+    if (currFbPtr == NULL) {
+        lprintf(LO_ERROR, "spi_lcd_init: Cannot allocate screen buffer. Need %i bytes.\n", 320*240*4);
+        heap_caps_print_heap_info(MALLOC_CAP_DEFAULT);
+        heap_caps_print_heap_info(MALLOC_CAP_SPIRAM);
+        exit(0);
+    }
 #endif
 #if CONFIG_FREERTOS_UNICORE
 	xTaskCreatePinnedToCore(&displayTask, "display", 6000, NULL, 6, NULL, 0);

@@ -1,0 +1,6 @@
+# Espressif ESP32 Partition Table
+# Name,  Type, SubType, Offset,  Size
+factory,  app,  factory,  0x10000, 1024k
+wifidata, data, nvs,     0x110000, 16K
+doom,     66,   6,       0x120000, 5120k
+prboom,   77,   7,       0x620000, 1024k

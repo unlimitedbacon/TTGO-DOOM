@@ -475,7 +475,7 @@ void *I_Mmap(void *addr, size_t length, int prot, int flags, int ifd, off_t offs
 	}
 
 	i=getFreeHandle();
-	lprintf(LO_INFO, "I_Mmap: new handle %i\n", i);
+	//lprintf(LO_INFO, "I_Mmap: new handle %i\n", i);
 
 	// SD Card
 	/*
@@ -536,7 +536,7 @@ int I_Munmap(void *addr, size_t length) {
 		lprintf(LO_ERROR, "I_Mmap: Freeing non-mmapped address/len combo!\n");
 		exit(0);
 	}
-	lprintf(LO_INFO, "I_Mmap: freeing handle %d\n", i);
+	//lprintf(LO_INFO, "I_Mmap: freeing handle %d\n", i);
 	mmapHandle[i].used--;
 	return 0;
 }

@@ -1,5 +1,7 @@
 #include <Arduino.h>
 
+#include "sdkconfig.h"
+
 #include "esp_attr.h"
 
 #include "rom/cache.h"
@@ -18,12 +20,16 @@
 #include <stdlib.h>
 #include "esp_err.h"
 #include "nvs_flash.h"
+#include "esp_task_wdt.h"
 // #include "esp_partition.h"
 
+extern "C" {
 #include "prboom/i_system.h"
 #include "prboom-esp32-compat/spi_lcd.h"
+#include "prboom-esp32-compat/gamepad.h"
+}
 
-extern void jsInit();
+extern "C" void jsInit();
 
 void doomEngineTask(void *pvParameters)
 {
@@ -31,7 +37,15 @@ void doomEngineTask(void *pvParameters)
   doom_main(3, argv);
 }
 
+#include "ttgo-config.h"
+#include <TTGO.h>
+
+TTGOClass *ttgo;
+
 void setup() {
+  ttgo = TTGOClass::getWatch();
+  ttgo->begin();
+  ttgo->openBL();
   // put your setup code here, to run once:
   //int i;
   //const esp_partition_t* part;
@@ -43,7 +57,9 @@ void setup() {
 
 	spi_lcd_init();
 	jsInit();
-	xTaskCreatePinnedToCore(&doomEngineTask, "doomEngine", 22480, NULL, 5, NULL, 0);
+  TaskHandle_t task;
+	xTaskCreatePinnedToCore(&doomEngineTask, "doomEngine", 22480, NULL, 5, &task, 0);
+  //esp_task_wdt_add(task);
 }
 
 void loop() {
