@@ -30,6 +30,8 @@ TODO
 - [ ] Load WAD files from SPIFFS filesystem instead of reading data directly from flash partitions
 - [ ] Save / Load games
 - [ ] Run vibration motor when you get hit
+- [ ] Multiplayer using WiFi
+- [ ] Maybe show the time?
 
 Credits
 -------
