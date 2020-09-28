@@ -1,5 +1,7 @@
 #include <Arduino.h>
 
+#include "main.h"
+
 #include "sdkconfig.h"
 
 #include "esp_attr.h"
@@ -37,8 +39,8 @@ void doomEngineTask(void *pvParameters)
   doom_main(3, argv);
 }
 
-#include "ttgo-config.h"
-#include <TTGO.h>
+//#include "ttgo-config.h"
+//#include <TTGO.h>
 
 TTGOClass *ttgo;
 
@@ -46,6 +48,11 @@ void setup() {
   ttgo = TTGOClass::getWatch();
   ttgo->begin();
   ttgo->openBL();
+  ttgo->enableLDO3();
+
+  ttgo->power->enableIRQ(AXP202_PEK_SHORTPRESS_IRQ, true);
+  ttgo->power->clearIRQ();
+
   // put your setup code here, to run once:
   //int i;
   //const esp_partition_t* part;

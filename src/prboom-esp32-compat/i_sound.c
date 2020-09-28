@@ -349,7 +349,7 @@ int I_GetSfxLumpNum(sfxinfo_t* sfx)
 
 int I_StartSound(int id, int channel, int vol, int sep, int pitch, int priority)
 {
-  printf( "starting sound %d\n", id );
+  //printf( "starting sound %d\n", id );
   
   // Returns a handle (not used).
   id = addsfx( id, vol, 0, sep );
@@ -531,8 +531,8 @@ void I_InitSound(void)
   i2s_driver_install(I2S_NUM_0, &i2s_config, 0, NULL);   //install and start i2s driver
 
   static const i2s_pin_config_t pin_config = {
-    .bck_io_num = 25,
-    .ws_io_num = 26,
+    .bck_io_num = 26,
+    .ws_io_num = 25,
     .data_out_num = 33,
     .data_in_num = I2S_PIN_NO_CHANGE
   };
@@ -605,8 +605,8 @@ void I_InitSound(void)
   // Finished initialization.
   lprintf(LO_INFO, "I_InitSound: sound module ready\n");
 
-  xTaskCreatePinnedToCore(&I_HandleSoundTask, "I_HandleSoundTask", 4000, NULL, 3, NULL, 0);
-  xTaskCreatePinnedToCore(&updateTask, "updateTask", 4000, NULL, 3, NULL, 0);
+  //xTaskCreatePinnedToCore(&I_HandleSoundTask, "I_HandleSoundTask", 4000, NULL, 3, NULL, 0);
+  //xTaskCreatePinnedToCore(&updateTask, "updateTask", 4000, NULL, 3, NULL, 0);
 }
 
 

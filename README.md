@@ -31,6 +31,7 @@ TODO
 - [ ] Save / Load games
 - [ ] Run vibration motor when you get hit
 - [ ] Multiplayer using WiFi
+- [ ] Gamepad using bluetooth
 - [ ] Maybe show the time?
 
 Credits
