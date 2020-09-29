@@ -58,6 +58,8 @@
 
 // #include "esp_heap_alloc_caps.h"
 
+#define ACCEL_DEADZONE 150
+
 int use_fullscreen=0;
 int use_doublebuffer=0;
 
@@ -99,30 +101,31 @@ void I_StartTic (void)
     event_t event;
     event.type = ev_keyup;
     event.data1 = last_touch_event;
+    //lprintf(LO_INFO,"I_StartTic: Keyup %d\n", last_touch_event);
     D_PostEvent(&event);
     last_touch_event = 0;
   }
 
   // Read touchscreen input
-  uint16_t x;
-  uint16_t y;
-  bool touched = ttgo_touch_get_point(&x, &y);
+  uint16_t touch_x;
+  uint16_t touch_y;
+  bool touched = ttgo_touch_get_point(&touch_x, &touch_y);
 
   // Detect touch events
   if (touched) {
     if (last_touched_state) {
       // Continuing previous gesture
-      swipe_end_x = x;
-      swipe_end_y = y;
+      swipe_end_x = touch_x;
+      swipe_end_y = touch_y;
     } else {
       // Starting new gesture
-      swipe_start_x = swipe_end_x = x;
-      swipe_start_y = swipe_end_y = y;
+      swipe_start_x = swipe_end_x = touch_x;
+      swipe_start_y = swipe_end_y = touch_y;
     }
   } else {
     if (last_touched_state) {
       // Ending gesture
-      //lprintf(LO_INFO,"I_StartTic: Swipe from %d,%d to %d,%d\n", swipe_start_x, swipe_start_y, swipe_end_x, swipe_end_y);
+      lprintf(LO_INFO,"I_StartTic: Swipe from %d,%d to %d,%d\n", swipe_start_x, swipe_start_y, swipe_end_x, swipe_end_y);
       int16_t dx = swipe_end_x - swipe_start_x;
       int16_t dy = swipe_end_y - swipe_start_y;
       event_t event;
@@ -150,7 +153,12 @@ void I_StartTic (void)
         }
       } else {
         // Touch
+        // Double event. Send menu select and also shoot
         event.data1 = KEYD_ENTER;
+        D_PostEvent(&event);
+        event.type = ev_keydown;
+        event.data1 = KEYD_RCTRL;
+        lprintf(LO_INFO,"I_StartTic: FIRE\n");
       }
       last_touch_event = event.data1;
       D_PostEvent(&event);
@@ -204,12 +212,51 @@ void I_StartTic (void)
 
   // May be helpful for reading touch
   // https://android.googlesource.com/kernel/msm/+/android-7.0.0_r0.1/drivers/input/touchscreen/ft5x06_ts.c
+
+  // Looks like the touchscreen and acceleromenter both support
+  // interrupts. Might be better to use those?
+
+  // Accelerometer joystick emulation
+  int16_t accel_x;
+  int16_t accel_y;
+  int16_t accel_z;
+  if (ttgo_get_accel(&accel_x, &accel_y, &accel_z))
+  {
+    //lprintf(LO_INFO,"I_StartTic: Accel X:%i Y:%i Z:%i\n", accel_x, accel_y, accel_z);
+    // Deadzone
+    if (abs(accel_x) < ACCEL_DEADZONE)
+    {
+      accel_x = 0;
+    }
+    if (abs(accel_y) < ACCEL_DEADZONE)
+    {
+      accel_y = 0;
+    }
+    //Smooth ramp up from edge of deadzone
+    if (accel_x > 0) accel_x -= ACCEL_DEADZONE;
+    if (accel_x < 0) accel_x += ACCEL_DEADZONE;
+    if (accel_y > 0) accel_y -= ACCEL_DEADZONE;
+    if (accel_y < 0) accel_y += ACCEL_DEADZONE;
+    // Cap accel at 1/2 G
+    if (accel_x > 512) accel_x = 512;
+    if (accel_y > 512) accel_y = 512;
+    event_t event;
+    event.type = ev_joystick;
+    event.data1 = 0;
+    event.data2 = accel_x;
+    event.data3 = accel_y;
+    D_PostEvent(&event);
+  }
 }
 
 
 static void I_InitInputs(void)
 {
   //lprintf(LO_INFO,"I_InitInputs: Touch vendor id: %X\n", ttgo_touch_get_vendor_id());
+  if (!ttgo_accel_init())
+  {
+    lprintf(LO_ERROR,"I_InitInputs: Couldn't initialize accelerometer");
+  }
 }
 
 

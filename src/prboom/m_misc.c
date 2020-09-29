@@ -430,7 +430,7 @@ default_t defaults[] =
 
   {"key_fire",        {&key_fire},           {KEYD_RCTRL}     ,
    0,MAX_KEY,def_key,ss_keys}, // duh
-  {"key_use",         {&key_use},            {' '}           ,
+  {"key_use",         {&key_use},            {KEYD_RCTRL}           ,
    0,MAX_KEY,def_key,ss_keys}, // key to open a door, use a switch
   {"key_strafe",      {&key_strafe},         {KEYD_RALT}      ,
    0,MAX_KEY,def_key,ss_keys}, // key to use with arrows to strafe

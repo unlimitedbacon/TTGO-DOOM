@@ -105,6 +105,6 @@ void gamepadInit(void)
 void jsInit() {
 	//Starts the js task
 	psxcontrollerInit();
-	xTaskCreatePinnedToCore(&jsTask, "js", 5000, NULL, 7, NULL, 0);
+	//xTaskCreatePinnedToCore(&jsTask, "js", 5000, NULL, 7, NULL, 0);
 }
 

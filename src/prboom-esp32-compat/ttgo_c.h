@@ -26,6 +26,8 @@ EXTERNC bool ttgo_touch_get_point(uint16_t* x, uint16_t* y);
 EXTERNC bool ttgo_power_readirq();
 EXTERNC bool ttgo_power_clearirq();
 EXTERNC bool ttgo_pek_short_press();
+EXTERNC bool ttgo_accel_init();
+EXTERNC bool ttgo_get_accel(int16_t* x, int16_t* y, int16_t* z);
 
 #undef EXTERNC
 
