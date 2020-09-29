@@ -22,10 +22,26 @@ After building and uploading the firmware, you will also need to upload the game
 
 I have included the WAD file for the shareware version of DOOM (`data/DOOM1.WAD`), but you can replace it with the WAD for a retail version if you have it. There is 14,720 Kb available for the WAD file.
 
+Controls
+--------
+
+
+| Menu Controls            |                     |
+| ------------------------ | ------------------- |
+| Side Button              | Open/close the menu |
+| Swipe up/down/left/right | Navigate the menu   |
+| Touch                    | Make a selection    |
+
+| Game Controls     |                           |
+| ----------------- | ------------------------- |
+| Tilt left/right   | Turn left and right       |
+| Tilt forward/back | Move forward and backward |
+| Tap               | Shoot or use              |
+
 TODO
 ----
-- [ ] Touchscreen gestures
-- [ ] Accelerometer for movement control
+- [x] Touchscreen gestures
+- [x] Accelerometer for movement control
 - [ ] Sound
 - [ ] Load WAD files from SPIFFS filesystem instead of reading data directly from flash partitions
 - [ ] Save / Load games
