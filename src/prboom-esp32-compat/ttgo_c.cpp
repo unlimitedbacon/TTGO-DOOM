@@ -14,9 +14,7 @@ extern "C" bool ttgo_touch_get_point(uint16_t* x, uint16_t* y) {
     //return ttgo->getTouch(*x,*y);
     if (ttgo->touched())
     {
-        TP_Point tp = ttgo->touch->getPoint(0);
-        *x = tp.x;
-        *y = tp.y;
+        ttgo->touch->getPoint(*x,*y);
         return true;
     } else {
         return false;
